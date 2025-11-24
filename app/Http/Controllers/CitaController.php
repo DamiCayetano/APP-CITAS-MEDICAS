@@ -11,7 +11,7 @@ class CitaController extends Controller
 {
     public function index()
     {
-        $citas = Cita::with('paciente', 'medico')->get();
+        $citas = Cita::with(['paciente', 'medico'])->orderBy('fecha_hora', 'desc')->get();
         return view('citas.index', compact('citas'));
     }
 
@@ -19,28 +19,17 @@ class CitaController extends Controller
     {
         $pacientes = Paciente::all();
         $medicos = Medico::all();
-
         return view('citas.create', compact('pacientes', 'medicos'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'paciente_id' => 'required',
-            'medico_id' => 'required',
-            'fecha' => 'required|date',
-            'hora' => 'required',
+            'paciente_id' => 'required|exists:pacientes,id',
+            'medico_id' => 'required|exists:medicos,id',
+            'fecha_hora' => 'required|date',
+            'motivo' => 'nullable|string',
         ]);
-
-        // Validación de doble reserva
-        $existe = Cita::where('medico_id', $request->medico_id)
-                      ->where('fecha', $request->fecha)
-                      ->where('hora', $request->hora)
-                      ->exists();
-
-        if ($existe) {
-            return back()->with('error', 'Este médico ya tiene una cita a esa hora.');
-        }
 
         Cita::create($request->all());
 
@@ -52,12 +41,19 @@ class CitaController extends Controller
     {
         $pacientes = Paciente::all();
         $medicos = Medico::all();
-
         return view('citas.edit', compact('cita', 'pacientes', 'medicos'));
     }
 
     public function update(Request $request, Cita $cita)
     {
+        $request->validate([
+            'paciente_id' => 'required|exists:pacientes,id',
+            'medico_id' => 'required|exists:medicos,id',
+            'fecha_hora' => 'required|date',
+            'estado' => 'required|in:reservada,reprogramada,cancelada,completada',
+            'motivo' => 'nullable|string',
+        ]);
+
         $cita->update($request->all());
 
         return redirect()->route('citas.index')
@@ -68,6 +64,8 @@ class CitaController extends Controller
     {
         $cita->delete();
 
-        return redirect()->route('citas.index');
+        return redirect()->route('citas.index')
+            ->with('mensaje', 'Cita eliminada correctamente');
     }
 }
+

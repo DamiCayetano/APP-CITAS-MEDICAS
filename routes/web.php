@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CitaController;
+use App\Http\Controllers\HistorialController;
 use App\Http\Controllers\MedicoController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\ProfileController;
@@ -32,6 +33,9 @@ Route::middleware(['auth'])->group(function () {
 
     // CRUD Citas
     Route::resource('citas', CitaController::class);
+
+    // CRUD Historial
+    Route::resource('historial', HistorialController::class);
 });
 
 // Rutas de autenticación generadas por Breeze / Jetstream / Laravel UI

@@ -1,39 +1,34 @@
-@extends('layouts.app')
+<x-app-layout>
+    <h2 class="text-2xl font-bold mb-4">Registrar Cita</h2>
 
-@section('content')
-<h2>Registrar Cita</h2>
+    <form action="{{ route('citas.store') }}" method="POST">
+        @csrf
 
-@if(session('error'))
-<div class="alert alert-danger">{{ session('error') }}</div>
-@endif
+        <label>Paciente:</label>
+        <select name="paciente_id" class="form-control" required>
+            <option value="">Seleccione</option>
+            @foreach($pacientes as $p)
+                <option value="{{ $p->id }}">{{ $p->nombre }} {{ $p->apellido ?? '' }}</option>
+            @endforeach
+        </select>
 
-<form action="{{ route('citas.store') }}" method="POST">
-    @csrf
+        <label>Médico:</label>
+        <select name="medico_id" class="form-control" required>
+            <option value="">Seleccione</option>
+            @foreach($medicos as $m)
+                <option value="{{ $m->id }}">{{ $m->nombre }} - {{ $m->especialidad }}</option>
+            @endforeach
+        </select>
 
-    <label>Paciente:</label>
-    <select name="paciente_id" class="form-control" required>
-        <option value="">Seleccione</option>
-        @foreach($pacientes as $p)
-            <option value="{{ $p->id }}">{{ $p->nombre }} {{ $p->apellido }}</option>
-        @endforeach
-    </select>
+        <label>Fecha y Hora:</label>
+        <input type="datetime-local" name="fecha_hora" class="form-control" required>
 
-    <label>Médico:</label>
-    <select name="medico_id" class="form-control" required>
-        <option value="">Seleccione</option>
-        @foreach($medicos as $m)
-            <option value="{{ $m->id }}">{{ $m->nombre }} - {{ $m->especialidad }}</option>
-        @endforeach
-    </select>
+        <label>Motivo:</label>
+        <textarea name="motivo" class="form-control"></textarea>
 
-    <label>Fecha:</label>
-    <input type="date" name="fecha" class="form-control" required>
+        <br>
+        <button class="btn btn-primary">Guardar</button>
+        <a href="{{ route('citas.index') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</x-app-layout>
 
-    <label>Hora:</label>
-    <input type="time" name="hora" class="form-control" required>
-
-    <br>
-    <button class="btn btn-primary">Guardar</button>
-    <a href="{{ route('citas.index') }}" class="btn btn-secondary">Cancelar</a>
-</form>
-@endsection
